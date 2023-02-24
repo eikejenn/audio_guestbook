@@ -74,6 +74,9 @@ float beep_volume = 0.04f; // not too loud :-)
 
 uint32_t MTPcheckInterval; // default value of device check interval [ms]
 
+// variable for timer
+unsigned long timer_millis=0;
+
 // variables for writing to WAV file
 unsigned long ChunkSize = 0L;
 unsigned long Subchunk1Size = 16;
@@ -209,11 +212,23 @@ void loop() {
       waveform1.begin(beep_volume, 440, WAVEFORM_SINE);
       wait(1250);
       waveform1.amplitude(0);
+
+      // set the timer to end recording after xxx seconds...
+      timer_millis=millis();
+
       // Start the recording function
       startRecording();
       break;
 
     case Mode::Recording:
+
+      // stop recording after xx seconds 30000 millis = 30 seconds ;-)
+      if (millis()-timer_millis>30000){  
+          timer_millis=millis();
+          stopRecording();
+          end_Beep();
+      }
+      
       // Handset is replaced
       if(buttonRecord.risingEdge()){
         // Debug log
